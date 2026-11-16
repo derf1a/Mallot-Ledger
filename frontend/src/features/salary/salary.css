@@ -38,3 +38,10 @@
   .slip-net { margin-left: 0; }
 }
 .warn-text { color: var(--warn); }
+.contract-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.contract-grid > div { display: flex; flex-direction: column; gap: 4px; }
+.contract-grid .big { font-size: 1.5rem; }
+.contract-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.plan { display: flex; flex-direction: column; gap: 10px; }
+.plan-basis { white-space: normal; min-width: 240px; color: var(--muted); }
+@media (max-width: 900px) { .contract-grid { grid-template-columns: minmax(0, 1fr); } }

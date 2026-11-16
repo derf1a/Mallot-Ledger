@@ -1,5 +1,6 @@
 /** 급여 관리 API — 급여명세서 기록 · 분석 · 명세서 이미지 판독 (백엔드 app/salary) */
 import { qs, request } from '../../shared/http'
+import type { SalaryParts, SalaryResult } from '../insights/api'
 
 export type SlipKind = 'regular' | 'bonus' | 'retro' | 'other'
 export type ItemKind = 'pay_taxable' | 'pay_nontaxable' | 'deduction'
@@ -23,7 +24,7 @@ export interface SlipInput {
   net_pay: number | null
   items: SlipItem[]
   memo: string
-  source: 'manual' | 'image'
+  source: 'manual' | 'image' | 'estimate'
 }
 
 export interface SlipCheck { key: string; ok: boolean | null; text: string; expected?: number; actual?: number }
@@ -68,7 +69,37 @@ export interface SlipDraft extends Omit<SlipInput, 'memo' | 'source'> {
   note: string | null
 }
 
+/** 연봉 기준 — 연봉 구성(소비 분석 > 절세의 총급여 계산기와 같은 값)과 한 달 정기 급여 추정 */
+export interface Contract {
+  parts: SalaryParts | null
+  gross_salary: number
+  monthly: { taxable: number; nontaxable: number; social: number; income_tax: number; local_income_tax: number; net: number } | null
+  lines: SalaryResult | null
+}
+
+export interface PlanDraft extends Omit<SlipInput, 'memo'> {
+  memo: string
+  basis: string
+  deposit: number | null
+  net: number
+}
+
+export interface Plan {
+  year: number
+  parts: SalaryParts | null
+  regular_name: string | null
+  calibrated_by: string | null
+  drafts: PlanDraft[]
+  others: { id: number; occurred_on: string; merchant: string; amount: number; kind: SlipKind }[]
+  skipped: string[]
+  note: string | null
+}
+
 export const salaryApi = {
+  contract: () => request<Contract>('GET', '/api/salary/contract'),
+  saveContract: (parts: SalaryParts) => request<Contract>('PUT', '/api/salary/contract', parts),
+  plan: (year: number) => request<Plan>('GET', `/api/salary/plan?year=${year}`),
+  applyPlan: (year: number, months: string[]) => request<{ created: number }>('POST', '/api/salary/plan', { year, months }),
   view: (year?: number) => request<SalaryView>('GET', `/api/salary${qs({ year })}`),
   create: (body: SlipInput) => request<Slip>('POST', '/api/salary', body),
   update: (id: number, body: SlipInput) => request<Slip>('PUT', `/api/salary/${id}`, body),

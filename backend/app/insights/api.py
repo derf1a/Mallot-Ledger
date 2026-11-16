@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.core.db import data_dir, get_conn
+from app.insights.schemas import SalaryIn
 from app.insights import facts, tax, tax_rules
 from app.insights.facts import InsightsError
 from app.runs.runner import JobError, load_run, run_dict, start_run
@@ -36,24 +37,6 @@ def read_stats(conn: Conn, months: int = 3) -> dict:
 
 
 Won = Annotated[int, Field(ge=0, le=10_000_000_000)]
-
-
-class SalaryIn(BaseModel):
-    """총급여 계산기 입력 — 월 금액은 세전, 나머지는 한 해 합계."""
-    months: int = Field(default=12, ge=0, le=12)     # 올해 근무 개월 수
-    base_monthly: Won = 0
-    meal_monthly: Won = 0
-    meal_provided: bool = False                       # 회사 식사를 제공받으면 식대 비과세 없음
-    car_monthly: Won = 0
-    childcare_monthly: Won = 0
-    young_children: int = Field(default=0, ge=0, le=20)  # 6세 이하 자녀 수
-    bonus: Won = 0
-    retro_pay: Won = 0
-    settlement: Won = 0
-    welfare_points: Won = 0
-    welfare_public: bool = False                      # 공무원 복지점수
-    other_taxable: Won = 0
-    other_taxfree: Won = 0
 
 
 @router.post("/salary")
