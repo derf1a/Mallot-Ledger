@@ -24,6 +24,10 @@
 - 서명 키도 각자의 비밀번호 · 공유 키 · `data/session_secret` 에서 만든다.
 - 그래서 투자 쪽 손님 링크 · 로그인으로는 가계부에 들어오지 못하고, 그 반대도 같다 (`tests/test_auth.py`).
 - 관리자 비밀번호도 따로 정한다.
+- 왔다 갔다: 사이드바 아래 **⇄ Mallot Invest** 로 짝 앱에 간다 (주소는 `ledger.` ↔ `invest.` 로 지금 주소에서 만든다). 투자 쪽에도 같은 링크가 있다.
+- 맨 도메인 고르기 화면: `.env` 에 `MLG_PORTAL_HOST=mallot-ai.com` 을 넣고, 터널 설정(`~/.cloudflared/mallot-ledger.yml`)의 ingress 에
+  `- hostname: mallot-ai.com` → `service: http://127.0.0.1:8200` 을 더한 뒤 `cloudflared tunnel route dns mallot-ledger mallot-ai.com`.
+  그 주소로 오면 데이터 없이 두 앱 링크만 보여 준다 (API 도 이 화면으로 — 가계부가 맨 도메인에서 열리지 않음).
 
 ## 1. 관리자 비밀번호
 

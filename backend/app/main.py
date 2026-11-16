@@ -14,6 +14,7 @@ from app import registry
 from app.auth.guard import guard
 from app.core import envfile, metrics, trace
 from app.core.db import connect, init_db
+from app.portal.page import portal
 from app.llm import local
 from app.recurring.matching import relink_recurring
 from app.runs.runner import recover_interrupted
@@ -46,6 +47,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="Mallot Ledger", lifespan=lifespan)
 app.middleware("http")(guard)  # 역할 검사 — 관리자는 모두, 손님은 읽기만 (app/auth)
+app.middleware("http")(portal)  # 맨 도메인(MLG_PORTAL_HOST)이면 가계부 · 투자 고르기 화면 — guard 보다 먼저 돈다
 
 
 @app.middleware("http")
