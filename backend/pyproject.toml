@@ -1,0 +1,28 @@
+[project]
+name = "mallot-ledger"
+version = "0.1.0"
+description = "Personal ledger split from Mallot: fixed costs, spending, calendar, salary & tax analysis, OCR capture"
+requires-python = ">=3.12"
+dependencies = [
+    "certifi>=2026.7.22",
+    "claude-agent-sdk>=0.2.164",
+    "fastapi>=0.142.2",
+    "mlx-lm>=0.32.2 ; platform_machine == 'arm64' and sys_platform == 'darwin'",
+    "openpyxl>=3.1.5",
+    "python-multipart>=0.0.20",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.optional-dependencies]
+langsmith = [
+    "langsmith>=0.14.17",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.13.1",
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

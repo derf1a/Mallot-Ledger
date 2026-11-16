@@ -1,0 +1,19 @@
+# Mallot Ledger — 로그인 필수 서버(127.0.0.1:8200) + Cloudflare 터널. 리눅스 서버에서 systemd 로 띄운다 (docs/share.md).
+# User · WorkingDirectory · ExecStart 경로를 내 것으로 고친 뒤:
+#   sudo cp scripts/mallot-ledger.service /etc/systemd/system/ && sudo systemctl enable --now mallot-ledger
+# 새 코드 반영은 sudo systemctl restart mallot-ledger (share.sh 를 손으로 또 띄우지 않는다 — 포트를 다툰다)
+[Unit]
+Description=Mallot Ledger (로그인 필수 서버 + Cloudflare 터널)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/mallot-ledger
+Environment=PATH=/home/YOUR_USER/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/YOUR_USER/mallot-ledger/scripts/share.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
