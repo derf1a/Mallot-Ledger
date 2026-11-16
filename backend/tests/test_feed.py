@@ -17,7 +17,7 @@ def test_token_reads_feed_from_local(client, locked):
     r = client.get("/api/feed/resources", headers={"X-Mallot-Feed": TOKEN})
     assert r.status_code == 200
     body = r.json()
-    assert body["app"] == "ledger" and len(body["llm"]["daily"]) == 30 and "runs" in body
+    assert body["version"] not in ("0", "?") and body["app"] == "ledger" and len(body["llm"]["daily"]) == 30 and "runs" in body
     s = client.get("/api/feed/summary", headers={"X-Mallot-Feed": TOKEN}).json()
     assert s["app"] == "ledger" and "period" in s and "spent_total" in s["variable"]
 
