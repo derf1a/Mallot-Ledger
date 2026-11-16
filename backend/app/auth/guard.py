@@ -17,7 +17,7 @@ from app.auth import security
 
 OPEN_API = {"/api/health", "/api/auth/login", "/api/auth/logout", "/api/auth/me", "/api/auth/share/enter"}
 DOC_PATHS = ("/docs", "/redoc", "/openapi.json")
-VIEWER_CLOSED = ("/api/auth/share", "/api/system/backup", *DOC_PATHS)  # 손님에게는 읽기도 닫는다 (DB 통째 내려받기 포함)
+VIEWER_CLOSED = ("/api/auth/share", "/api/auth/access", "/api/system/backup", *DOC_PATHS)  # 손님에게는 읽기도 닫는다 (DB 통째 내려받기 포함)
 READ_METHODS = ("GET", "HEAD", "OPTIONS")
 
 
