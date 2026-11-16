@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { systemApi } from '../features/settings/api'
-import { otherAppUrl, portalUrl } from '../shared/otherApp'
+import { otherApps, portalUrl } from '../shared/otherApp'
 import { useLoad } from '../shared/useLoad'
 import AccessAlerts from './AccessAlerts'
 import BrandMark from './BrandMark'
@@ -36,7 +36,7 @@ const SECTIONS: NavSection[] = [
   { title: 'Analyze', items: [{ to: '/ledger/insights', label: 'Insights', icon: <InsightsIcon /> }] },
 ]
 const UTILITY: NavItem[] = [{ to: '/settings', label: 'Settings', icon: <SettingsIcon /> }]
-const OTHER_APP = otherAppUrl()
+const OTHER_APPS = otherApps()
 const PORTAL = portalUrl()
 
 function Wordmark() {
@@ -95,17 +95,17 @@ export default function Layout({ onLogout, viewer }: { onLogout?: () => void; vi
         <div className="nav-utility">
           {UTILITY.map((item) => link(item, 'small'))}
           {PORTAL && (
-            <a className="nav-link small app-switch" href={PORTAL} title="Mallot 고르기 화면">
+            <a className="nav-link small app-switch" href={PORTAL} title="Mallot 홈 — 통합 대시보드">
               <span className="nav-icon" aria-hidden="true">⌂</span>
               <span>Mallot 홈</span>
             </a>
           )}
-          {OTHER_APP && (
-            <a className="nav-link small app-switch" href={OTHER_APP} title="투자 앱으로 — 로그인은 따로예요">
+          {OTHER_APPS.map((o) => (
+            <a key={o.key} className="nav-link small app-switch" href={o.url} title={`${o.label} — 로그인은 따로예요`}>
               <span className="nav-icon" aria-hidden="true">⇄</span>
-              <span>Mallot Invest</span>
+              <span>{o.label}</span>
             </a>
-          )}
+          ))}
           {onLogout && <button className="nav-link small nav-button" onClick={onLogout}>로그아웃</button>}
           {viewer && (
             <>
