@@ -1,10 +1,11 @@
 /**
  * 설정 — 개인설정(이름 · 월 주수입 · 수입일 · 내 계좌) · 가계부(카테고리 · 정기지출 칸 · 가맹점 규칙) · 데이터(뱅크샐러드 가져오기 ·
- * 판독 기록 · DB 백업) · OCR(Unlimited-OCR-2) · LLM(기본 LLM · 경로 · vLLM) · 공유 · 접근.
+ * 판독 기록 · DB 백업) · OCR(Unlimited-OCR-2) · LLM(기본 LLM · 경로 · vLLM) · 공유 · 접근 · 접속 기록(IP · 한국 밖 경보).
  * 손님(읽기 전용)은 값을 보기만 한다 — 입력 · 버튼을 모두 잠그고, 공유 탭 · DB 백업 · 서버 주소는 없다.
  */
 import { useSearchParams } from 'react-router-dom'
 import { useReadOnly } from '../../shared/readOnly'
+import AccessLog from './AccessLog'
 import { LedgerSettings, PersonalSettings, SystemSettings } from './LedgerTabs'
 import LlmSettings from './LlmSettings'
 import OcrSettings from './OcrSettings'
@@ -18,6 +19,7 @@ const TABS = [
   { key: 'ocr', label: 'OCR', admin: false },
   { key: 'llm', label: 'LLM', admin: false },
   { key: 'share', label: '공유 · 접근', admin: true },
+  { key: 'access', label: '접속 기록', admin: true },
 ] as const
 
 export default function SettingsPage() {
@@ -43,7 +45,7 @@ export default function SettingsPage() {
             : tab === 'data' ? <SystemSettings />
               : tab === 'ocr' ? <OcrSettings />
                 : tab === 'llm' ? <><LlmSettings /><RoutesSettings /></>
-                  : <ShareSettings />}
+                  : tab === 'access' ? <AccessLog /> : <ShareSettings />}
       </fieldset>
     </div>
   )
