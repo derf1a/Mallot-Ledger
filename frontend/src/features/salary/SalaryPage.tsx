@@ -10,6 +10,7 @@ import { useReadOnly } from '../../shared/readOnly'
 import { useLoad } from '../../shared/useLoad'
 import { Columns, type Col } from '../insights/charts'
 import { DEDUCTION_FIELDS, salaryApi, type SalaryView, type Slip } from './api'
+import ContractCard from './ContractCard'
 import SlipForm from './SlipForm'
 
 const SEGS = [
@@ -39,6 +40,7 @@ export default function SalaryPage() {
       </div>
       {error && <p className="error">{error}</p>}
       {data?.notes.map((n) => <p key={n} className="muted small">{n}</p>)}
+      <ContractCard year={year} readOnly={readOnly} onChanged={reload} />
       {data && data.slips.length === 0 && (
         <article className="card">
           <p className="muted">
@@ -127,6 +129,7 @@ function SlipRow({ s, readOnly, onEdit, onDelete }: { s: Slip; readOnly: boolean
           <span className="slip-month">{s.pay_month}</span>
           <span className="chip small">{s.kind_ko}</span>
           {s.source === 'image' && <span className="chip small muted-chip">이미지</span>}
+          {s.source === 'estimate' && <span className="chip small muted-chip">연봉 추정</span>}
           <span className="slip-net num">{won(s.net)}</span>
           <span className="muted small">지급 {won(s.gross_pay)} · 공제 {won(s.deductions)}</span>
           {bad > 0 && <span className="chip warn-chip small">검산 {bad}</span>}

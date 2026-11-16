@@ -63,7 +63,9 @@ def view(conn: sqlite3.Connection, s: dict) -> dict:
     if s["net_pay"] is not None and s["net_pay"] != computed_net:
         checks.append({"key": "net", "ok": False, "text": f"실지급액 {s['net_pay']:,}원 ≠ 지급 {gross:,} − 공제 {deductions:,} = {computed_net:,}원 "
                                                          "— 빠진 공제 · 지급 줄이 있는지 보세요"})
-    if s["kind"] == "regular" and s["taxable_pay"] > 0:
+    if s["source"] == "estimate":
+        checks.append({"key": "estimate", "ok": None, "text": "연봉 기준 추정 — 실제 명세서 숫자로 고치면(이미지 · 직접) 요율 검산을 해요"})
+    elif s["kind"] == "regular" and s["taxable_pay"] > 0:
         want = R.expected(s["taxable_pay"], s["health_insurance"] or None, s["income_tax"])
         for key, w in want.items():
             got = s[key]
@@ -135,18 +137,38 @@ def summary(conn: sqlite3.Connection, year: int, today: date | None = None, with
     withheld = totals["taxes"] + avg_taxes * filled
     social_year = totals["social"] + avg_social * filled
     notes = []
+    # 연봉 구성(계산기)에 있는 상여 · 소급 · 일시금 · 복지포인트 · 기타 과세 중 아직 기록하지 않은 몫 — 세금은 정기 급여의 실효 세율로
+    extras_planned = _contract_extras(conn)
+    extras_recorded = sum(v["taxable_pay"] for v in views if v["kind"] != "regular")
+    extras_add = max(0, extras_planned - extras_recorded) if year <= today.year else 0
+    if extras_add:
+        rate = avg_taxes / avg_taxable if avg_taxable else 0
+        gross_year += extras_add
+        withheld += round(extras_add * rate)
+        notes.append(f"연봉 구성의 상여 · 일시금 등 중 아직 기록하지 않은 {extras_add:,}원을 더했어요 (세금은 정기 급여 세율 {rate:.1%})")
     if missing_before:
         notes.append(f"정기 급여 기록이 없는 {len(missing_before)}달({', '.join(f'{m}월' for m in missing_before)})도 최근 평균으로 채웠어요 — "
                      "그 달에 일하지 않았다면(올해 입사 · 휴직) 총급여 · 원천징수가 실제보다 커요")
-    if any(v["kind"] != "regular" for v in views):
+    if any(v["kind"] != "regular" for v in views) and not extras_planned:
         notes.append("상여 · 소급분은 기록한 것만 넣고 잇지 않았어요")
     out["projection"] = {"through": f"{year}-{last:02d}", "rest_months": rest, "filled_before": len(missing_before),
                          "filled_months": filled, "covered_months": len(covered), "months_in_year": end,
-                         "avg_regular_taxable": avg_taxable, "gross_salary": gross_year, "withheld": withheld, "social": social_year,
+                         "avg_regular_taxable": avg_taxable, "extras_added": extras_add, "gross_salary": gross_year, "withheld": withheld, "social": social_year,
                          "note": " · ".join(notes) or None}
     if with_estimate:
         out["estimate"] = estimate(conn, gross_year, withheld, social_year, today)
     return out
+
+
+def _contract_extras(conn: sqlite3.Connection) -> int:
+    """연봉 구성의 한 해 몫 과세 금액(상여 · 소급 · 일시금 · 복지포인트 · 기타 과세). 없으면 0."""
+    from app.salary import contract  # 늦게 — contract 가 tax_rules 를 쓴다
+
+    p = contract.parts(conn)
+    if not p:
+        return 0
+    lines = contract.T.salary_lines(p)["lines"]
+    return sum(x["taxable"] for x in lines if x["key"] in ("bonus", "retro_pay", "settlement", "welfare", "other_taxable"))
 
 
 def projected_gross(conn: sqlite3.Connection, year: int, today: date | None = None) -> int:
@@ -163,7 +185,9 @@ def estimate(conn: sqlite3.Connection, gross: int, withheld: int, social: int, t
         from app.insights import tax  # 늦게 — 절세 계산은 가계부 전체를 읽어 무겁다
 
         t = tax.compute(conn, today)
-        if t.get("available") and t.get("summary") and t.get("gross_source") == "salary":
+        # 절세 계산의 총급여가 급여 기록으로 이은 값이거나, 직접 넣은 총급여(연봉 구성)와 5% 안이면 그 결정세액을 쓴다
+        close = t.get("gross") and abs(t["gross"] - gross) <= 0.05 * max(gross, 1)
+        if t.get("available") and t.get("summary") and (t.get("gross_source") == "salary" or close):
             decided, basis = t["summary"]["tax_now"], "ledger"
     except Exception:  # noqa: BLE001 — 절세 계산이 안 돼도 기본 추정은 낸다
         decided = None

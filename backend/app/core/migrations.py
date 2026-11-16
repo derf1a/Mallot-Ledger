@@ -284,4 +284,32 @@ MIGRATIONS: list[str] = [
         UNIQUE (day, ip)
     );
     """,
+    # v3 (급여): 연봉 기준으로 만든 명세서(source='estimate') — CHECK 를 바꾸려고 테이블을 다시 만든다 (app/salary/contract.py)
+    """
+    CREATE TABLE salary_slips_new (
+        id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+        pay_month            TEXT    NOT NULL,
+        paid_on              TEXT,
+        kind                 TEXT    NOT NULL DEFAULT 'regular' CHECK (kind IN ('regular', 'bonus', 'retro', 'other')),
+        employer             TEXT    NOT NULL DEFAULT '',
+        taxable_pay          INTEGER NOT NULL DEFAULT 0 CHECK (taxable_pay >= 0),
+        nontaxable_pay       INTEGER NOT NULL DEFAULT 0 CHECK (nontaxable_pay >= 0),
+        national_pension     INTEGER NOT NULL DEFAULT 0,
+        health_insurance     INTEGER NOT NULL DEFAULT 0,
+        long_term_care       INTEGER NOT NULL DEFAULT 0,
+        employment_insurance INTEGER NOT NULL DEFAULT 0,
+        income_tax           INTEGER NOT NULL DEFAULT 0,
+        local_income_tax     INTEGER NOT NULL DEFAULT 0,
+        other_deductions     INTEGER NOT NULL DEFAULT 0,
+        net_pay              INTEGER,
+        items_json           TEXT    NOT NULL DEFAULT '[]',
+        memo                 TEXT    NOT NULL DEFAULT '',
+        source               TEXT    NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'image', 'estimate')),
+        created_at           TEXT    NOT NULL DEFAULT (datetime('now', 'localtime'))
+    );
+    INSERT INTO salary_slips_new SELECT * FROM salary_slips;
+    DROP TABLE salary_slips;
+    ALTER TABLE salary_slips_new RENAME TO salary_slips;
+    CREATE INDEX idx_salary_slips_month ON salary_slips (pay_month);
+    """,
 ]
