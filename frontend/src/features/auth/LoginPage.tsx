@@ -37,7 +37,7 @@ export default function LoginPage({ me, onDone }: { me: Me; onDone: () => void }
         ) : (
           <p className="muted">관리자 비밀번호가 정해지지 않아 로그인할 수 없어요.</p>
         )}
-        <p className="muted small">운용 상황을 보러 오셨다면 관리자에게 받은 공유 링크로 들어와 주세요.</p>
+        <p className="muted small">가계부를 보러 오셨다면 관리자에게 받은 공유 링크로 들어와 주세요.</p>
       </form>
     </main>
   )

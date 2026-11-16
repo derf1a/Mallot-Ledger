@@ -147,8 +147,8 @@ function ProviderCard({ st, selected, busy, onPick }: { st: LlmStatus; selected:
         ))}
       </div>
       <p className="muted small">
-        기능마다 모델을 <b>기본 모델</b>로 두면 여기서 고른 LLM 을 써요. 실험실 &gt; 투자 에이전트·소비 습관·AI 리포트에서 모델을 직접 고른 곳은 그 선택을 따르고(로컬 LLM 도 고를 수 있어요),
-        캡쳐 판독은 이미지를 읽어야 해서 언제나 Claude 를 써요.
+        기능마다 모델을 <b>기본 모델</b>로 두면 여기서 고른 LLM 을 써요. 소비 습관 보고서처럼 모델을 직접 고른 곳은 그 선택을 따르고(로컬 LLM 도 고를 수 있어요),
+        캡쳐 · 급여명세서의 Vision 판독은 이미지를 읽어야 해서 언제나 Claude 를 써요 (OCR 판독의 글 정리는 로컬로도 보낼 수 있어요).
       </p>
     </article>
   )

@@ -67,6 +67,3 @@
 .llm-mem span { min-width: 3px; }
 .llm-kv { margin-top: 12px; }
 .llm-test { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--surface); }
-
-/* fieldset 은 기본 min-width 가 내용 폭이라 휴대폰에서 가로로 넘친다 */
-.readonly-fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
