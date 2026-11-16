@@ -25,19 +25,10 @@
 - 그래서 투자 쪽 손님 링크 · 로그인으로는 가계부에 들어오지 못하고, 그 반대도 같다 (`tests/test_auth.py`).
 - 관리자 비밀번호도 따로 정한다.
 - 왔다 갔다: 사이드바 아래 **⇄ Mallot Invest** 로 짝 앱에 간다 (주소는 `ledger.` ↔ `invest.` 로 지금 주소에서 만든다). 투자 쪽에도 같은 링크가 있다.
-- 맨 도메인 고르기 화면: `.env` 에 `MLG_PORTAL_HOST=mallot-ai.com` 을 넣고, 터널 설정(`~/.cloudflared/mallot-ledger.yml`)의 ingress 에
-  `- hostname: mallot-ai.com` → `service: http://127.0.0.1:8200` 을 더한 뒤 `cloudflared tunnel route dns mallot-ledger mallot-ai.com`.
-  그 주소로 오면 데이터 없이 두 앱 링크만 보여 준다 (API 도 이 화면으로 — 가계부가 맨 도메인에서 열리지 않음).
+- 맨 도메인 고르기 화면 · 세 주소를 받는 터널 하나 · systemd 유닛은 별도 저장소 **mallot-home** 이 맡는다.
+  거기서는 이 앱을 `SHARE_TUNNEL=0`(서버만)으로 띄운다. 이 문서의 터널 설정은 가계부만 혼자 열 때 쓴다.
 - **휴대폰 앱 'Mallot':** 맨 도메인을 열고 공유 → 홈 화면에 추가(아이폰) · 앱 설치(안드로이드)하면 'Mallot' 아이콘이 생기고 고르기 화면에서 시작한다.
   두 앱은 다른 하위 도메인이라 앱 안의 브라우저 화면으로 열리고, 사이드바 아래 **⌂ Mallot 홈** 으로 돌아온다.
-
-## 1. 관리자 비밀번호
-
-```bash
-make admin-password      # 10자 이상, .env 에 scrypt 해시(MLG_ADMIN_PASSWORD_HASH)로 저장 — 평문은 남지 않는다
-```
-
-비밀번호를 바꾸면 이전 로그인이 모두 끊긴다. 5번 틀리면 15분 잠긴다.
 
 ## 2. 띄우기
 
