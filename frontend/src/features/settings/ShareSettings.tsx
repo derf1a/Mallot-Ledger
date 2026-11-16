@@ -1,11 +1,10 @@
 /**
  * Settings > 공유 — 손님(읽기 전용) 공유 링크 켜기 · 끄기 · 새 키, 휴대폰으로 찍어 여는 QR.
- * 손님은 관리자 화면을 그대로 읽기만 한다 (키 · 공유 설정은 못 보고, 설정 · 주문 · 대화는 못 바꾼다).
+ * 손님은 관리자 화면을 그대로 읽기만 한다 (키 · 공유 설정은 못 보고, 설정 · 기록 · 가져오기는 못 바꾼다).
  * 관리자는 같은 주소에서 비밀번호로 로그인하면 휴대폰에서도 모든 화면을 쓴다.
  */
 import QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useLoad } from '../../shared/useLoad'
 import { authApi } from '../auth/api'
 
@@ -56,7 +55,6 @@ export default function ShareSettings() {
             <button onClick={() => window.confirm('새 키를 만들면 지금 링크와 이미 들어온 손님이 모두 끊겨요. 만들까요?') && act({ rotate: true }, '새 키를 만들었어요')}>
               새 키 만들기
             </button>
-            <Link className="small" to="/share">휴대폰용 운용 현황 요약 →</Link>
           </div>
           {link.enabled ? (
             <div className="share-link">

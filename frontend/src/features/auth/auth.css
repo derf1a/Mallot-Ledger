@@ -1,0 +1,15 @@
+/* ---------- 로그인 · 읽기 전용(손님) — 휴대폰을 먼저 생각한다 (Mallot Invest 의 share.css 에서 옮김) ---------- */
+.page-error { padding: 24px; }
+.login-page { min-height: 100dvh; display: grid; place-items: center; padding: 16px; background: var(--bg); }
+.login-card { width: min(380px, 100%); display: flex; flex-direction: column; gap: 14px; }
+.login-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.15rem; }
+.login-card input { width: 100%; font-size: 16px; }  /* iOS 는 16px 보다 작으면 입력할 때 화면을 확대한다 */
+.nav-button { width: 100%; border: none; background: none; text-align: left; cursor: pointer; }
+
+/* 손님(읽기 전용) — 관리자 화면과 같고, 잠긴 칸 · 표시만 더한다 */
+.readonly-banner { margin: 0 0 12px; padding: 8px 12px; border-radius: 8px; background: var(--surface); border: 1px dashed var(--border); }
+.readonly-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 16px; }  /* .page 의 칸 간격 그대로 */
+.readonly-fieldset:disabled input, .readonly-fieldset:disabled select, .readonly-fieldset:disabled textarea,
+.readonly-fieldset:disabled button { cursor: not-allowed; }
+.readonly-chip { margin-left: auto; }
+.nav-readonly { display: block; padding: 6px 12px; color: var(--muted); }
