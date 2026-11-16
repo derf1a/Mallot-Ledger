@@ -53,11 +53,24 @@ def test_year_summary_projection_and_refund_estimate(client):
     assert [m["month"] for m in s["months"]] == ["2026-01", "2026-02", "2026-03"]
     assert s["totals"]["taxable_pay"] == 3 * 3_800_000 + 2_000_000
     p = s["projection"]
-    assert p["rest_months"] == 9 and p["gross_salary"] == 3 * 3_800_000 + 2_000_000 + 9 * 3_800_000
-    assert p["withheld"] == 3 * 220_000 + 330_000 + 9 * 220_000 and p["note"] == "상여 · 소급분은 잇지 않았어요"
+    assert p["rest_months"] == 9 and p["filled_before"] == 0 and p["gross_salary"] == 3 * 3_800_000 + 2_000_000 + 9 * 3_800_000
+    assert p["withheld"] == 3 * 220_000 + 330_000 + 9 * 220_000 and p["note"] == "상여 · 소급분은 기록한 것만 넣고 잇지 않았어요"
     e = s["estimate"]
     assert e["refund"] == e["withheld"] - e["decided"] and e["decided"] > 0 and ("돌려받" in e["text"] or "더 낼" in e["text"])
     assert s["rates"]["tax"] == pytest.approx(s["totals"]["taxes"] / s["totals"]["gross_pay"], abs=1e-4)
+
+
+def test_records_starting_mid_year_fill_the_earlier_months(client):
+    """8월부터 기록했으면 1~7월도 최근 평균으로 채워 1년 총급여를 낸다 (안 그러면 환급이 크게 부풀려진다)."""
+    from app.core.db import connect
+
+    for m in ("08", "09", "10"):
+        client.post("/api/salary", json={**SLIP, "pay_month": f"2026-{m}"})
+    with connect() as conn:
+        p = analysis.summary(conn, 2026, today=date(2026, 11, 16))["projection"]
+    assert (p["filled_before"], p["rest_months"], p["filled_months"]) == (7, 2, 9)
+    assert p["gross_salary"] == 12 * 3_800_000 and p["withheld"] == 12 * 220_000
+    assert "1월, 2월" in p["note"] and "입사" in p["note"]
 
 
 def test_tax_insight_uses_salary_records_for_gross(client):

@@ -3,7 +3,8 @@
 - 명세서 한 장: 지급 합계(과세 + 비과세) · 공제 합계 · 실지급액(명세서 값, 없으면 지급 − 공제)과 계산이 어긋나는지, 실수령 비율,
   4대보험 · 지방소득세 검산(정기 급여만 — rules.py 의 2026 요율), 가계부 입금(지급일 ±3일 · 같은 금액 수입)이 있는지.
 - 올해: 달마다 흐름, 항목별 합계, 실효 세율(소득세 + 지방세 ÷ 지급 합계) · 4대보험 비율, 지난달 대비 정기 급여 변화.
-- 연말 추정: 총급여 = 올해 과세 지급액 + 남은 달 × 최근 정기 급여 평균(상여는 잇지 않음). 원천징수도 같은 방식으로 잇는다.
+- 연말 추정: 총급여 = 올해 과세 지급액 + (기록 없는 달 — 앞 · 사이 빈 달과 남은 달) × 최근 정기 급여 평균(상여는 잇지 않음).
+  원천징수 · 4대보험도 같은 방식으로 잇는다. 기록을 올해 중간부터 시작했으면 앞 달을 채웠다고 적는다(입사 · 휴직이면 실제보다 큼).
   결정세액은 소비 분석의 절세 계산(insights.tax — 카드 · 연금저축 · 청약 등 가계부로 추정한 공제 포함)을 쓰고, 그게 안 되면
   기본 공제만으로 계산한다. 원천징수 − 결정세액 = 연말정산 환급(+) · 추가 납부(−) 추정.
 """
@@ -119,19 +120,30 @@ def summary(conn: sqlite3.Connection, year: int, today: date | None = None, with
         diff = b["regular_taxable"] - a["regular_taxable"]
         out["change"] = {"from": a["month"], "to": b["month"], "diff": diff,
                          "rate": round(diff / a["regular_taxable"], 4) if a["regular_taxable"] else None}
-    # 연말까지 잇기 — 최근 정기 급여 3달 평균
+    # 1년 채우기 — 정기 급여 기록이 없는 달(앞쪽 빈 달 · 사이 빈 달 · 남은 달)을 최근 정기 급여 3달 평균으로
     last = max(int(m["month"][5:7]) for m in out["months"])
+    covered = {int(m["month"][5:7]) for m in regular}
+    end = 12 if year <= today.year else last
     rest = max(0, 12 - last) if year == today.year else 0
+    missing_before = sorted(m for m in range(1, last + 1) if m not in covered)
+    filled = len(missing_before) + rest if year <= today.year else 0
     recent = regular[-3:]
     avg_taxable = round(sum(m["regular_taxable"] for m in recent) / len(recent)) if recent else 0
     avg_taxes = round(sum(m["regular_taxes"] for m in recent) / len(recent)) if recent else 0
     avg_social = round(sum(m["social"] for m in recent) / len(recent)) if recent else 0
-    gross_year = totals["taxable_pay"] + avg_taxable * rest
-    withheld = totals["taxes"] + avg_taxes * rest
-    social_year = totals["social"] + avg_social * rest
-    out["projection"] = {"through": f"{year}-{last:02d}", "rest_months": rest, "avg_regular_taxable": avg_taxable,
-                         "gross_salary": gross_year, "withheld": withheld, "social": social_year,
-                         "note": "상여 · 소급분은 잇지 않았어요" if any(v["kind"] != "regular" for v in views) else None}
+    gross_year = totals["taxable_pay"] + avg_taxable * filled
+    withheld = totals["taxes"] + avg_taxes * filled
+    social_year = totals["social"] + avg_social * filled
+    notes = []
+    if missing_before:
+        notes.append(f"정기 급여 기록이 없는 {len(missing_before)}달({', '.join(f'{m}월' for m in missing_before)})도 최근 평균으로 채웠어요 — "
+                     "그 달에 일하지 않았다면(올해 입사 · 휴직) 총급여 · 원천징수가 실제보다 커요")
+    if any(v["kind"] != "regular" for v in views):
+        notes.append("상여 · 소급분은 기록한 것만 넣고 잇지 않았어요")
+    out["projection"] = {"through": f"{year}-{last:02d}", "rest_months": rest, "filled_before": len(missing_before),
+                         "filled_months": filled, "covered_months": len(covered), "months_in_year": end,
+                         "avg_regular_taxable": avg_taxable, "gross_salary": gross_year, "withheld": withheld, "social": social_year,
+                         "note": " · ".join(notes) or None}
     if with_estimate:
         out["estimate"] = estimate(conn, gross_year, withheld, social_year, today)
     return out

@@ -37,3 +37,4 @@
   .home-calendar { grid-template-columns: minmax(0, 1fr); }
   .slip-net { margin-left: 0; }
 }
+.warn-text { color: var(--warn); }

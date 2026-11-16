@@ -56,8 +56,8 @@ export interface SalaryView {
   totals: Record<string, number> | null
   rates: { tax: number | null; social: number | null; take_home: number | null } | null
   change: { from: string; to: string; diff: number; rate: number | null } | null
-  projection: { through: string; rest_months: number; avg_regular_taxable: number; gross_salary: number; withheld: number;
-    social: number; note: string | null } | null
+  projection: { through: string; rest_months: number; filled_before: number; filled_months: number; covered_months: number;
+    months_in_year: number; avg_regular_taxable: number; gross_salary: number; withheld: number; social: number; note: string | null } | null
   estimate: { gross_salary: number; decided: number; withheld: number; refund: number; basis: 'ledger' | 'basic'; basis_ko: string;
     text: string } | null
 }

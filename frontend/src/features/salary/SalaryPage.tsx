@@ -104,12 +104,13 @@ function Estimate({ d }: { d: SalaryView }) {
       <p className={`big ${e.refund >= 0 ? 'pos' : 'neg'}`}><b>{e.text}</b></p>
       <dl className="kv">
         <dt>올해 총급여(추정)</dt>
-        <dd>{won(e.gross_salary)} <span className="muted small">— {p.through}까지 기록 + 남은 {p.rest_months}달 × 최근 정기 급여 {won(p.avg_regular_taxable)}{p.note ? ` · ${p.note}` : ''}</span></dd>
+        <dd>{won(e.gross_salary)} <span className="muted small">— 기록 {p.covered_months}달 + 기록 없는 {p.filled_months}달 × 최근 정기 급여 {won(p.avg_regular_taxable)}</span></dd>
         <dt>원천징수(추정)</dt>
         <dd>{won(e.withheld)} <span className="muted small">소득세 + 지방소득세</span></dd>
         <dt>결정세액(추정)</dt>
         <dd>{won(e.decided)} <span className="muted small">{e.basis_ko}</span></dd>
       </dl>
+      {p.note && <p className="small warn-text">{p.note}</p>}
       <p className="muted small">
         세법 · 요율은 {d.rules_year}년 기준이고 부양가족 · 의료비 · 기부금은 넣지 않은 대략값이에요. 공제를 늘릴 방법은 Insights 의 절세 카드에서 볼 수 있어요.
       </p>
