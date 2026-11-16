@@ -15,3 +15,16 @@ def test_portal_host_shows_chooser_and_hides_api(client, monkeypatch):
 
 def test_portal_off_without_setting(client):
     assert client.get("/api/health", headers={"Host": "example.com"}).json()["ok"] is True
+
+
+def test_portal_is_installable_as_mallot(client, monkeypatch):
+    import json
+
+    monkeypatch.setenv("MLG_PORTAL_HOST", "example.com")
+    page = client.get("/", headers={"Host": "example.com"}).text
+    assert '<link rel="manifest" href="/manifest.webmanifest">' in page and 'apple-mobile-web-app-title" content="Mallot"' in page
+    m = client.get("/manifest.webmanifest", headers={"Host": "example.com"})
+    assert m.headers["content-type"].startswith("application/manifest+json")
+    data = json.loads(m.text)
+    assert (data["name"], data["start_url"], data["display"]) == ("Mallot", "/", "standalone")
+    assert {i["sizes"] for i in data["icons"]} >= {"192x192", "512x512"}

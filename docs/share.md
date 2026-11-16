@@ -28,6 +28,8 @@
 - 맨 도메인 고르기 화면: `.env` 에 `MLG_PORTAL_HOST=mallot-ai.com` 을 넣고, 터널 설정(`~/.cloudflared/mallot-ledger.yml`)의 ingress 에
   `- hostname: mallot-ai.com` → `service: http://127.0.0.1:8200` 을 더한 뒤 `cloudflared tunnel route dns mallot-ledger mallot-ai.com`.
   그 주소로 오면 데이터 없이 두 앱 링크만 보여 준다 (API 도 이 화면으로 — 가계부가 맨 도메인에서 열리지 않음).
+- **휴대폰 앱 'Mallot':** 맨 도메인을 열고 공유 → 홈 화면에 추가(아이폰) · 앱 설치(안드로이드)하면 'Mallot' 아이콘이 생기고 고르기 화면에서 시작한다.
+  두 앱은 다른 하위 도메인이라 앱 안의 브라우저 화면으로 열리고, 사이드바 아래 **⌂ Mallot 홈** 으로 돌아온다.
 
 ## 1. 관리자 비밀번호
 
