@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { systemApi } from '../features/settings/api'
+import { otherAppUrl } from '../shared/otherApp'
 import { useLoad } from '../shared/useLoad'
 import BrandMark from './BrandMark'
 import { BudgetIcon, HomeIcon, InsightsIcon, LedgerIcon, RecurringIcon, SalaryIcon, SettingsIcon } from './NavIcons'
@@ -34,6 +35,7 @@ const SECTIONS: NavSection[] = [
   { title: 'Analyze', items: [{ to: '/ledger/insights', label: 'Insights', icon: <InsightsIcon /> }] },
 ]
 const UTILITY: NavItem[] = [{ to: '/settings', label: 'Settings', icon: <SettingsIcon /> }]
+const OTHER_APP = otherAppUrl()
 
 function Wordmark() {
   return (
@@ -90,6 +92,12 @@ export default function Layout({ onLogout, viewer }: { onLogout?: () => void; vi
         </div>
         <div className="nav-utility">
           {UTILITY.map((item) => link(item, 'small'))}
+          {OTHER_APP && (
+            <a className="nav-link small app-switch" href={OTHER_APP} title="투자 앱으로 — 로그인은 따로예요">
+              <span className="nav-icon" aria-hidden="true">⇄</span>
+              <span>Mallot Invest</span>
+            </a>
+          )}
           {onLogout && <button className="nav-link small nav-button" onClick={onLogout}>로그아웃</button>}
           {viewer && (
             <>
