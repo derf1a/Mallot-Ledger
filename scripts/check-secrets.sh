@@ -23,7 +23,7 @@ if [ -n "$bad" ]; then
 fi
 
 # 2) 값이 채워진 키 · 토큰 모양 (.env 처럼 줄 맨 앞의 KEY=값 — 코드 문자열 속 가짜 값은 건드리지 않는다)
-patterns='sk-ant-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|lsv2_[a-z]{2}_[A-Za-z0-9]{20,}|^[[:space:]]*(export[[:space:]]+)?(ANTHROPIC_API_KEY|LANGSMITH_API_KEY|MLG_VLLM_API_KEY|MLG_OCR_API_KEY|MLG_ADMIN_PASSWORD|MLG_ADMIN_PASSWORD_HASH|MLG_SESSION_SECRET)[[:space:]]*=[[:space:]]*[^[:space:]#]+'
+patterns='sk-ant-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|lsv2_[a-z]{2}_[A-Za-z0-9]{20,}|^[[:space:]]*(export[[:space:]]+)?(ANTHROPIC_API_KEY|LANGSMITH_API_KEY|MLG_VLLM_API_KEY|MLG_OCR_API_KEY|MLG_ADMIN_PASSWORD|MLG_ADMIN_PASSWORD_HASH|MLG_FEED_TOKEN|MLG_SESSION_SECRET)[[:space:]]*=[[:space:]]*[^[:space:]#]+'
 for f in $files; do
   [ -f "$f" ] || continue
   case "$f" in scripts/check-secrets.sh) continue ;; esac

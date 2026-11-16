@@ -24,7 +24,7 @@ def isolated_env(tmp_path, monkeypatch):
     monkeypatch.setenv("MLG_ENV_FILE", str(tmp_path / ".env"))
     monkeypatch.setenv("MLG_SERVICES", "0")  # 백그라운드 서비스를 띄우지 않는다
     for key in ("ANTHROPIC_API_KEY", "MLG_VLLM_URL", "MLG_VLLM_API_KEY", "LANGSMITH_API_KEY", "MLG_MODELS_DIR",
-                "MLG_ADMIN_PASSWORD", "MLG_ADMIN_PASSWORD_HASH", "MLG_PUBLIC", "MLG_SESSION_SECRET",
+                "MLG_ADMIN_PASSWORD", "MLG_ADMIN_PASSWORD_HASH", "MLG_FEED_TOKEN", "MLG_PUBLIC", "MLG_SESSION_SECRET",
                 "MLG_OCR_URL", "MLG_OCR_API_KEY", "MLG_OCR_MODE", "MLG_OCR_MODEL"):
         monkeypatch.delenv(key, raising=False)
     from app.auth import security
