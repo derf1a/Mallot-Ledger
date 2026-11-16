@@ -1,0 +1,97 @@
+/* ---------- 변동비 관리 (가계부 > Budget) ---------- */
+.budget-page { gap: 16px; padding-bottom: 72px; }
+.bud-top { display: flex; flex-direction: column; gap: 14px; }
+.bud-figure { display: flex; flex-direction: column; gap: 6px; }
+.bud-alloc { position: relative; }
+.stack-bar.tall { position: relative; }
+.stack-seg.free { background: var(--border); }
+.bud-limit { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--neg); border-radius: 1px; pointer-events: none; }
+.bud-fill { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+.bud-fill-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.bud-head, .bud-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, auto) minmax(0, 1.3fr) minmax(0, 1fr); gap: 8px 18px; align-items: center; }
+.bud-head { padding: 0 8px 8px; border-bottom: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); }
+.bud-row { padding: 12px 8px; border-bottom: 1px solid var(--border); border-radius: 8px; }
+.bud-row.changed { background: color-mix(in srgb, var(--c-variable) 7%, transparent); }
+.bud-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.bud-name .swatch { flex-shrink: 0; }
+.bud-title { display: flex; flex-direction: column; min-width: 0; }
+.bud-title > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bud-edit-link { margin-left: auto; flex-shrink: 0; white-space: nowrap; font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+.bud-row:hover .bud-edit-link, .bud-edit-link:focus-visible { color: var(--accent); text-decoration: underline; }
+.bud-edit { flex-wrap: wrap; }
+.bud-edit .w-name { width: 9em; }
+.bud-edit .w-desc { flex: 1 1 8em; min-width: 6em; }
+.bud-edit-buttons { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.bud-input { display: flex; align-items: center; gap: 8px; }
+.bud-input > .small { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+.money-input { display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+.money-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.money-input input { width: 8.5em; border: none; outline: none; padding: 7px 0; background: transparent; color: var(--text); text-align: right;
+  font-family: var(--font-display); font-variant-numeric: tabular-nums; font-size: 0.95rem; }
+.bud-usage { display: flex; flex-direction: column; gap: 4px; min-width: 0; width: 100%; margin: -6px -8px; padding: 6px 8px; box-sizing: content-box;
+  border: none; border-radius: 8px; background: none; text-align: left; color: inherit; cursor: pointer; }
+.bud-usage:not(:disabled):hover, .bud-usage.open { background: var(--surface); }
+.bud-usage:disabled { opacity: 1; cursor: default; }
+.bud-usage-line { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.bud-usage-count { flex-shrink: 0; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bud-usage:not(:disabled):hover .bud-usage-count, .bud-usage.open .bud-usage-count { color: var(--accent); }
+.bud-row.open { border-bottom-color: transparent; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+/* 펼친 카테고리의 이번 기간 거래 */
+.bud-tx { display: flex; flex-direction: column; gap: 8px; margin: 0 0 8px; padding: 10px 12px 12px; border-radius: 0 0 10px 10px;
+  background: var(--surface); border-bottom: 1px solid var(--border); }
+.bud-tx-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.bud-tx-tools { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.bud-tx-empty { padding: 8px 0; }
+.bud-tx-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+.bud-tx-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto auto auto; grid-template-areas: 'date main badges amount actions' 'sub sub sub sub sub';
+  align-items: center; gap: 0 10px; padding: 6px 4px; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.bud-tx-row.review { box-shadow: inset 3px 0 0 var(--warn); }
+.bud-tx-date { grid-area: date; font-size: 0.8rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bud-tx-date.today, .bud-tx-date.today .muted { color: var(--accent); }
+.bud-tx-main { grid-area: main; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.bud-tx-merchant { flex: 0 1 auto; font-weight: 500; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bud-tx-meta { flex: 1 1 0; min-width: 0; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bud-tx-row .badges { grid-area: badges; flex-wrap: nowrap; }
+.bud-tx-amount { grid-area: amount; font-size: 0.9rem; font-weight: 600; text-align: right; white-space: nowrap; }
+.bud-tx-actions { grid-area: actions; display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: 7.5em; }
+.bud-tx-actions button.small { padding: 3px 10px; font-size: 0.78rem; }
+.bud-tx-actions button.on { border-color: var(--accent); color: var(--accent); }
+.bud-tx-row.moved > :not(.bud-tx-sub) { opacity: 0.45; }
+.bud-tx-row.moved .bud-tx-merchant { text-decoration: line-through; }
+.bud-tx-sub { grid-area: sub; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 0 2px 66px; }
+.bud-tx-pick .ref-chip { color: var(--text); }
+.bud-tx-similar { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.bud-tx-similar button.small { padding: 3px 10px; font-size: 0.78rem; }
+.bud-refs { display: flex; flex-wrap: wrap; gap: 6px; }
+.ref-chip { padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+.ref-chip b { color: var(--text); font-weight: 600; margin-left: 2px; }
+.ref-chip:hover { border-color: var(--c-variable); color: var(--text); }
+.bud-none { color: var(--muted); }
+.bud-new { background: var(--surface); }
+.bud-add { margin-top: 12px; }
+.bud-save { position: sticky; bottom: 12px; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 8px 24px rgb(0 0 0 / 0.14); }
+.bud-save-buttons { display: inline-flex; gap: 8px; }
+
+@media (max-width: 900px) {
+  .bud-head { display: none; }
+  .bud-row { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'name' 'input' 'usage' 'refs'; }
+  .bud-name { grid-area: name; }
+  .bud-input { grid-area: input; }
+  .bud-usage { grid-area: usage; }
+  .bud-refs { grid-area: refs; }
+  .bud-new { grid-template-areas: 'name' 'input' 'usage'; }
+  .bud-new .bud-edit-buttons { grid-area: usage; }
+  .money-input input { width: 7em; }
+  .bud-tx { padding: 8px 8px 10px; }
+  /* 폰: 가맹점·결제수단 두 줄 옆에 금액·버튼 두 줄 (분류 출처 배지는 가계부처럼 숨김, 분류 필요는 왼쪽 선) */
+  .bud-tx-row { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: 'date main amount' 'date main actions' 'sub sub sub'; gap: 2px 8px; }
+  .bud-tx-row .badges { display: none; }
+  .bud-tx-main { flex-direction: column; align-items: stretch; gap: 0; }
+  .bud-tx-meta { flex: none; }
+  .bud-tx-date { align-self: start; padding-top: 3px; font-size: 0.75rem; }
+  .bud-tx-actions { min-width: 0; }
+  .bud-tx-sub { padding-left: 0; }
+}

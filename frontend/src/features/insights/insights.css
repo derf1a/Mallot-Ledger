@@ -1,0 +1,147 @@
+/* ---------- 소비 습관 (Ledger > Insights) ---------- */
+.insights-page { display: flex; flex-direction: column; gap: 16px; }
+.insights-page > p { margin: 0; }
+.insights-filters { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; }
+.insights-run { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.insights-tiles { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.insights-report { display: flex; flex-direction: column; gap: 12px; }
+.insights-report .section-head { flex-wrap: wrap; align-items: flex-start; row-gap: 8px; }
+.insights-report .section-head h2 { margin: 0; }
+.insights-empty p { margin: 0 0 6px; line-height: 1.6; }
+.spending-report { display: flex; flex-direction: column; gap: 16px; }
+.spending-report header h3 { margin: 0; }
+.spending-report header p { margin: 4px 0 0; }
+.spending-report section { display: flex; flex-direction: column; gap: 8px; }
+.spending-report h4 { margin: 0; font-size: 0.92rem; }
+.spending-report p { margin: 0; line-height: 1.6; }
+.habit-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.habit { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; border-left: 4px solid var(--border); background: var(--surface); }
+.habit.good { border-left-color: var(--pos); }
+.habit.watch { border-left-color: var(--warn); }
+.habit-tone { color: var(--muted); font-size: 0.75rem; font-weight: 700; }
+.habit.good .habit-tone { color: var(--pos); }
+.habit.watch .habit-tone { color: var(--warn); }
+.suggestions { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; }
+.suggestion-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip.saving { background: var(--accent-soft); color: var(--accent); }
+.chip.muted-chip { background: var(--surface); color: var(--muted); font-size: 0.7rem; }
+.category-notes { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.6; }
+.cites { display: inline-flex; gap: 3px; vertical-align: middle; }
+.cites .cite { min-width: 20px; height: 20px; margin: 0; padding: 0 5px; border: 1px solid var(--border); border-radius: 10px; background: var(--card);
+  color: var(--accent); font-size: 0.7rem; font-weight: 700; line-height: 18px; vertical-align: middle; }
+.cites .cite:hover { background: var(--accent-soft); }
+.facts-list summary { cursor: pointer; }
+.facts-list ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: 0.85rem; line-height: 1.55; }
+.facts-list li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 6px; padding: 4px 6px; border-radius: 8px; }
+.facts-list li.on { background: var(--accent-soft); }
+.fact-id { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.insights-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.insights-grid .card h2 { margin: 0 0 12px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.insights-wide { grid-column: 1 / -1; }
+@media (max-width: 900px) {
+  .insights-grid { grid-template-columns: minmax(0, 1fr); }
+  .insights-run { margin-left: 0; }
+}
+
+/* 세로 막대 (기간·요일·시간대) */
+.cols { position: relative; }
+.cols-plot { position: relative; margin: 14px 0 0 44px; }
+.cols-grid { position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--border); }
+.cols-grid span { position: absolute; right: calc(100% + 6px); top: -0.65em; color: var(--muted); font-size: 0.7rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cols-area { position: absolute; inset: 0; display: flex; }
+.cols-band { position: absolute; top: -14px; bottom: 0; border-radius: 6px; background: color-mix(in srgb, var(--accent) 7%, transparent); pointer-events: none; }
+.cols-band span { position: absolute; top: 1px; left: 6px; color: var(--muted); font-size: 0.68rem; white-space: nowrap; }
+.col-slot { position: relative; flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; justify-content: center; border-radius: 4px; outline: none; }
+.col-slot:hover, .col-slot:focus-visible { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.col { width: min(24px, 70%); display: flex; flex-direction: column-reverse; gap: 2px; }
+.col i { display: block; flex-basis: 0; min-height: 2px; }
+.col i:last-child { border-radius: 4px 4px 0 0; }
+.col-cap { position: absolute; left: 50%; transform: translate(-50%, -4px); color: var(--text); font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
+.cols-x { display: flex; margin: 6px 0 0 44px; }
+.cols-x span { flex: 1 1 0; min-width: 0; color: var(--muted); font-size: 0.7rem; text-align: center; white-space: nowrap; }
+.viz-tip-row { display: flex; align-items: center; gap: 6px; }
+.viz-tip .viz-tip-row .muted { white-space: nowrap; max-width: none; }
+.viz-tip-key { width: 10px; height: 2px; border-radius: 1px; }
+.bar-legend { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.82rem; }
+.bar-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.table-view { margin-top: 8px; }
+.table-view summary { cursor: pointer; }
+.table-view .data-table { margin-top: 6px; }
+.table-view .data-table th, .table-view .data-table td { padding: 4px 8px; white-space: nowrap; }
+.table-view .data-table td { text-align: right; }
+
+/* 많이 쓴 곳 */
+.merchant-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.merchant-bars li { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(50px, 1fr) 7.5em; align-items: center; gap: 10px; }
+.merchant-name { min-width: 0; display: flex; flex-direction: column; }
+.merchant-name b, .merchant-name .small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.merchant-name b { font-size: 0.9rem; font-weight: 600; }
+.merchant-track { height: 10px; }
+.merchant-track i { display: block; height: 100%; min-width: 2px; border-radius: 0 4px 4px 0; background: var(--series-1); }
+.merchant-sum { font-size: 0.88rem; text-align: right; white-space: nowrap; }
+.habit-teaser { display: flex; flex-direction: column; gap: 4px; color: inherit; text-decoration: none; line-height: 1.5; }
+.habit-teaser:hover b { color: var(--accent); }
+
+/* 고정비·저금 */
+.fixed-card { display: flex; flex-direction: column; gap: 12px; }
+.fixed-card > h2, .tax-card > h2 { margin: 0; }
+.fixed-card .stat-row, .fixed-card .legend { margin: 0; }
+.fixed-lists { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.fixed-list h3 { margin: 0 0 6px; font-size: 0.92rem; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.fixed-table { width: 100%; }
+.fixed-table th, .fixed-table td { padding: 5px 8px; white-space: nowrap; }
+.fixed-table td { text-align: right; }
+.fixed-table tbody th { font-weight: 600; text-align: left; }
+.fixed-table tbody th .muted { font-weight: 400; font-size: 0.75rem; }
+.chip.warn-chip { background: var(--warn-soft); color: var(--warn); }
+
+/* 절세 */
+.tax-card { display: flex; flex-direction: column; gap: 14px; }
+.tax-card > p { margin: 0; }
+.tax-row-head { display: flex; align-items: baseline; gap: 6px 10px; flex-wrap: wrap; }
+.tax-cardsec { display: flex; flex-direction: column; gap: 8px; }
+.tax-cardsec p, .tax-cardsec .legend { margin: 0; }
+.tax-stack { position: relative; overflow: visible; }
+.tax-threshold { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--text); pointer-events: none; }
+.legend i.tax-threshold-key { width: 2px; height: 12px; border-radius: 1px; background: var(--text); vertical-align: -1px; }
+.tax-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.tax-item { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid var(--border); }
+.tax-item p { margin: 0; line-height: 1.55; }
+.tax-meter { display: grid; grid-template-columns: minmax(80px, 1fr) auto; align-items: center; gap: 10px; }
+.tax-req summary { cursor: pointer; }
+.tax-req p { margin: 4px 0 0; }
+.tax-profile { border-top: 1px solid var(--border); padding-top: 12px; }
+.tax-profile summary { cursor: pointer; }
+.tax-profile-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 16px; margin: 12px 0; }
+.tax-profile-form label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
+.tax-calc-open { align-self: flex-start; }
+.salary-calc { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 14px; padding: 12px 14px; border-radius: 10px; background: var(--surface); }
+.salary-calc h4 { margin: 4px 0 0; font-size: 0.85rem; }
+.salary-calc .tax-profile-form { margin: 4px 0; }
+.salary-check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+.salary-check input { width: auto; }
+.salary-lines tbody th span { display: block; font-weight: 400; }
+.salary-total { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; padding-top: 6px; }
+.salary-total strong { font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.salary-total button { margin-left: auto; }
+.tax-methods-box summary { cursor: pointer; }
+.tax-methods-box > p { margin: 6px 0; }
+.tax-methods { width: 100%; }
+.tax-methods th, .tax-methods td { padding: 4px 8px; white-space: nowrap; }
+.tax-methods td.num { text-align: right; }
+.tax-methods tbody th { font-weight: 500; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.tax-methods select { max-width: 9.5em; margin-right: 6px; }
+.tax-profile-actions { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 10px; }
+@media (max-width: 900px) {
+  .fixed-lists { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .tax-meter { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .tax-methods th, .tax-methods td { padding: 4px 4px; }
+  .salary-lines, .salary-lines tbody { display: block; }
+  .salary-lines thead { display: none; }
+  .salary-lines tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 8px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .salary-lines tbody th { grid-column: 1 / -1; }
+  .salary-lines td { font-size: 0.8rem; }
+  .salary-lines td::before { content: attr(data-label); display: block; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+}

@@ -1,0 +1,85 @@
+/* ---------- 가계부: 검색·필터·촘촘한 목록·추가 버튼 ---------- */
+.ledger-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-box {
+  flex: 1 1 240px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.search-box input { flex: 1; border: none; padding: 8px 0; background: transparent; outline: none; }
+.search-box .icon-button { padding: 2px 6px; font-size: 0.9rem; }
+.filter-toggle.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.filter-panel { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.filter-panel select { flex: 1 1 150px; }
+.search-summary { display: flex; flex-direction: column; gap: 6px; }
+.scope-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.scope-chips button { padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; }
+.scope-chips button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.tx-list.compact { gap: 0; border-top: 1px solid var(--border); }
+.tx-list.compact .tx-row {
+  display: grid;
+  grid-template-columns: 58px 24px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 4px;
+  border-radius: 0;
+  border-width: 0 0 1px;
+  border-color: color-mix(in srgb, var(--border) 55%, transparent);
+  background: transparent;
+}
+.tx-list.compact .tx-row.day-first { border-top: 1px solid var(--border); margin-top: -1px; }
+.tx-list.compact .tx-row:hover { background: var(--surface); }
+.tx-list.compact .tx-row.review { box-shadow: inset 3px 0 0 var(--warn); }
+.tx-day-cell { font-size: 0.82rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tx-day-cell.today, .tx-day-cell.today .muted { color: var(--accent); }
+.tx-list.compact .tx-icon { font-size: 1rem; }
+.tx-list.compact .tx-main { flex-direction: row; align-items: baseline; gap: 8px; }
+.tx-list.compact .tx-merchant { flex: 0 1 auto; max-width: 55%; font-weight: 500; font-size: 0.92rem; }
+.tx-list.compact .tx-meta { flex: 1 1 0; min-width: 0; font-size: 0.76rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tx-list.compact .badges { flex-wrap: nowrap; }
+.tx-list.compact .tx-amount { font-size: 0.9rem; text-align: right; min-width: 88px; }
+.more-button { align-self: center; margin-top: 4px; }
+
+.add-menu { position: relative; }
+.add-button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-weight: 600; white-space: nowrap; }
+.add-plus { font-size: 1.05rem; line-height: 1; }
+.add-caret { font-size: 0.7rem; opacity: 0.85; }
+.add-backdrop { position: fixed; inset: 0; z-index: 30; }
+.add-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 31;
+  min-width: 250px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.16);
+}
+.add-popover button { display: flex; align-items: center; gap: 10px; padding: 10px; border: none; border-radius: 8px; background: none; text-align: left; }
+.add-popover button:hover { background: var(--surface); }
+.add-popover button > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.add-item-icon { font-size: 1.3rem; width: 32px; text-align: center; }
+
+@media (max-width: 768px) {
+  .add-button { width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 10px; }
+  .add-text, .add-caret { display: none; }
+  .add-plus { font-size: 1.3rem; }
+  .add-popover { min-width: 230px; }
+  .tx-list.compact .tx-row { grid-template-columns: 44px 20px minmax(0, 1fr) auto; gap: 6px; padding: 5px 6px 5px 2px; }
+  .tx-day-cell { font-size: 0.75rem; }
+  .tx-list.compact .badges { display: none; }
+  .tx-list.compact .tx-main { flex-direction: column; align-items: stretch; gap: 0; }
+  .tx-list.compact .tx-merchant { max-width: none; }
+  .tx-list.compact .tx-amount { min-width: 0; }
+  .ledger-toolbar .segmented { margin-left: auto; }
+}

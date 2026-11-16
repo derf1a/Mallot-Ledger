@@ -1,0 +1,5 @@
+/* 정기지출 카테고리(칸) 순서 바꾸기 */
+
+.group-order { display: flex; flex-direction: column; gap: 6px; }
+.group-order-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 0; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.group-order-row.dragging { box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); position: relative; z-index: 5; }

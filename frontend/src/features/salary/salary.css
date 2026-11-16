@@ -1,0 +1,39 @@
+/* 급여 · 홈 추가 카드 (지출 캘린더 · 급여) · 설정 OCR */
+.page-header-actions { display: flex; gap: 8px; align-items: center; }
+
+.slip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.slip-row details { border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.slip-row summary { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; padding: 10px 12px; cursor: pointer; }
+.slip-month { font-weight: 600; font-variant-numeric: tabular-nums; }
+.slip-net { margin-left: auto; font-weight: 700; }
+.slip-detail { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.slip-checks { list-style: none; margin: 0; padding: 0; font-size: 0.85rem; display: flex; flex-direction: column; gap: 2px; }
+.slip-checks .ok { color: var(--pos); }
+.slip-checks .bad { color: var(--warn); }
+.slip-checks .unknown { color: var(--muted); }
+.warn-chip { background: var(--warn-soft); color: var(--warn); }
+
+.slip-form { display: flex; flex-direction: column; gap: 10px; }
+.slip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px 12px; }
+.slip-read { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; }
+.slip-items { margin: 6px 0 0; padding-left: 1.2em; }
+.salary-estimate .big { font-size: 1.15rem; margin: 0 0 6px; }
+
+.home-calendar { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+.home-calendar-list { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.home-calendar-list h3 { margin: 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.home-tx-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.home-tx-list li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 0;
+  border-bottom: 1px solid var(--border); }
+.home-tx-main { display: flex; flex-direction: column; min-width: 0; }
+.home-tx-main b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.home-salary { display: flex; flex-direction: column; gap: 4px; }
+.home-salary .big { font-size: 1.5rem; }
+.link-button { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font: inherit; }
+
+.ocr-text { white-space: pre-wrap; max-height: 360px; overflow: auto; background: var(--surface); border-radius: 8px; padding: 10px; font-size: 0.8rem; }
+
+@media (max-width: 760px) {
+  .home-calendar { grid-template-columns: minmax(0, 1fr); }
+  .slip-net { margin-left: 0; }
+}

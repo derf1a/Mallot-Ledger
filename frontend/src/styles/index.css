@@ -1,0 +1,21 @@
+/*
+ * 스타일 입구. 공용(styles/)과 기능별(features/<기능>/*.css) 파일을 여기서 차례로 불러온다.
+ * 순서가 곧 우선순위(뒤에 올수록 이김) — Mallot 에서 옮긴 순서를 그대로 두고, 새 기능의 CSS 는 맨 아래에 더한다.
+ */
+@import './base.css';
+@import './layout.css';
+@import './components.css';
+@import '../features/ledger/ledger.css';
+@import './forms.css';
+@import './controls.css';
+@import '../features/recurring/recurring.css';
+@import './mobile.css';
+@import './panels.css';
+@import '../features/ledger/ledger-toolbar.css';
+@import '../features/recurring/group-order.css';
+@import './numbers.css';
+@import '../features/settings/settings.css';
+@import '../features/insights/insights.css';
+@import '../features/home/home.css';
+@import '../features/budget/budget.css';
+@import '../features/salary/salary.css';
