@@ -356,7 +356,6 @@ def test_recurring_without_day_is_floating(setup):
 
 def test_skip_missed_recurring_for_this_period_only(setup):
     client = setup
-    today = date.today()
     period = client.get("/api/summary").json()["period"]
     start = date.fromisoformat(period["start"])
     item = set_recurring(client, "보험료", amount=80000, day_of_month=start.day)
@@ -376,7 +375,7 @@ def test_skip_missed_recurring_for_this_period_only(setup):
     nxt = client.get("/api/recurring-status", params={"on": (date.fromisoformat(period["end"]) + timedelta(days=1)).isoformat()})
     assert {i["name"]: i for i in nxt.json()["items"]}["보험료"]["status"] != "skipped"
     # 건너뛰어도 실제로 나가면 확인됨
-    add_tx(client, merchant="보험", amount=80000, occurred_on=today.isoformat())
+    add_tx(client, merchant="보험", amount=80000, occurred_on=start.isoformat())  # 결제일에 — 오늘이면 결제일과 멀 때 짝이 안 된다
     assert {i["name"]: i for i in client.get("/api/recurring-status").json()["items"]}["보험료"]["status"] == "paid"
     # 되돌리기
     assert client.delete(f"/api/recurring-items/{item['id']}/skip").json()["skipped"] is False
