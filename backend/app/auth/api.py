@@ -37,6 +37,14 @@ def _set(response: Response, request: Request, name: str, value: str, ttl: int) 
 
 @router.get("/me")
 def me(request: Request, conn: Conn) -> dict:
+    if security.home_mode():
+        # 홈 모드 — 로그인은 Mallot 홈에서. 앞의 필드는 화면이 깨지지 않게 같은 모양으로 둔다
+        try:
+            role = security.home_request_role(request.headers, request.cookies)
+        except security.HomeUnavailable:
+            raise HTTPException(503, "Mallot 홈 로그인 서버에 연결하지 못했어요") from None
+        return {"auth": True, "public": False, "has_password": False, "role": role, "share_enabled": False,
+                "home": True, "login_url": security.HOME_LOGIN_URL, "logout_url": security.HOME_LOGOUT_URL}
     on = security.enabled()
     role = security.role_of(request.cookies) if on else "admin"
     return {"auth": on, "public": security.public(), "has_password": security.has_password(), "role": role,
