@@ -30,6 +30,13 @@
 - **휴대폰 앱 'Mallot':** 맨 도메인을 열고 공유 → 홈 화면에 추가(아이폰) · 앱 설치(안드로이드)하면 'Mallot' 아이콘이 생기고 고르기 화면에서 시작한다.
   두 앱은 다른 하위 도메인이라 앱 안의 브라우저 화면으로 열리고, 사이드바 아래 **⌂ Mallot 홈** 으로 돌아온다.
 
+### 한 도메인 경로 · Mallot 홈 통합 로그인
+
+mallot-home 이 세 앱을 한 도메인의 경로(`<도메인>/ledger/` · `/invest/` · `/lab/`)로 묶어 띄울 때 쓰는 두 설정이다 (아이폰 홈 화면 앱에서 다른 origin 으로 넘어가면 주소창 달린 Safari 창이 떠서, 같은 origin 의 경로로 옮겼다). 둘 다 비우면 위 내용 그대로다.
+
+- **`MLG_BASE_PATH=/ledger`** — 터널은 경로를 그대로 보내고, 서버 맨 바깥 미들웨어(`app/core/base_path.py`)가 `/ledger` 를 떼서 guard · 라우터는 `/api/...` 만 본다. `/ledger` 는 `/ledger/` 로 307. 접두사 없는 요청(127.0.0.1:8200 직접 · 홈의 `/api/feed/*`)은 그대로 된다. 프론트도 같은 값으로 빌드해야 한다 (vite `base` · 라우터 `basename` · API 주소 앞에 붙는다) — `share.sh` · `make serve` 는 셸 환경 변수나 `.env` 의 값을 빌드에 넘긴다.
+- **`MLG_HOME_AUTH_URL=http://127.0.0.1:8300`** — 로그인 · 손님 공유 · 비밀번호는 Mallot 홈이 맡는다. 서버는 브라우저 쿠키 `mallot_session` 을 홈의 `/internal/auth/check?app=ledger` 에 대시보드 열쇠(`MLG_FEED_TOKEN`)와 함께 물어 역할(admin · viewer · 없음)을 받는다 (2초, 10초 캐시). 홈이 답하지 않으면 503 으로 닫힌다. 터널을 거치지 않은 요청(이 컴퓨터 안)은 관리자다. 손님 규칙(읽기만)은 그대로이고, 앱의 로그인 · 공유 링크 API 는 409 를 돌려준다. 화면은 로그인 폼 대신 홈의 `/login?next=…` 으로 보내고, 로그아웃은 홈의 `/logout`, Settings > 공유 · 접근 은 "Mallot 홈 → 보안" 안내 한 줄로 바뀐다.
+
 ## 2. 띄우기
 
 ```bash

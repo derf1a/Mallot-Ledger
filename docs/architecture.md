@@ -4,10 +4,10 @@
 backend/            Python 3.12 · uv · FastAPI
   app/main.py       앱 조립: 시작 시 .env · 마이그레이션 · 멈춘 실행 정리 · 정기지출 재매칭, 기능 자동 등록, 빌드된 화면 서빙
   app/registry.py   기능 패키지 자동 등록 — api*.py 의 router, jobs 의 작업, service.py
-  app/core/         공용: db(연결 · merchant_key SQL 함수 · 마이그레이션 실행) · migrations · envfile · periods(수입일 기준 한 달) · net · metrics · trace · access
+  app/core/         공용: db(연결 · merchant_key SQL 함수 · 마이그레이션 실행) · migrations · envfile · periods(수입일 기준 한 달) · net · metrics · trace · access · base_path(경로 접두사 MLG_BASE_PATH 떼기)
   app/llm/          structured · agentic 단일 진입점 + 사용량 기록, 경로(routes: 기능 → Claude · MLX · vLLM)
   app/runs/         작업 실행기 (소비 습관 보고서 · 판독 재평가)
-  app/auth/         관리자 로그인 · 손님 공유 링크 · 요청마다 역할 검사(guard) — 쿠키 mlg_*
+  app/auth/         관리자 로그인 · 손님 공유 링크 · 요청마다 역할 검사(guard) — 쿠키 mlg_*, 홈 모드면 Mallot 홈에 역할을 묻는다
   app/system/       버전 · DB 정보 · 백업(관리자만)
   app/ledger/       거래 · 요약 · 개인설정 · 내 계좌 · 가맹점 정규화 · 분류 규칙, Mallot DB 옮기기(import_mallot)
   app/recurring/    고정비(정기지출): 칸 · 항목 · 자동 매칭 · 기간 배정 · 건너뛰기 · 반복 지출 탐지
@@ -20,7 +20,7 @@ backend/            Python 3.12 · uv · FastAPI
   app/importer/     뱅크샐러드 내보내기 가져오기 · 되돌리기
 frontend/           React + TypeScript (Vite)
   src/app/          Layout(사이드바 · 모바일 메뉴) · NavIcons · BrandMark
-  src/shared/       http · format · useLoad · charts · readOnly(손님) · ui/
+  src/shared/       http(API 주소에 경로 접두사 BASE 붙이기) · otherApp · format · useLoad · charts · readOnly(손님) · ui/
   src/features/     home · ledger · budget · recurring · salary · insights · settings · auth · runs
 ```
 
