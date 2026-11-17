@@ -3,6 +3,8 @@
 #   ~/.cloudflared/mallot-ledger.yml 이 있으면 내 도메인(named tunnel — scripts/tunnel-setup.sh 로 만든다),
 #   없으면 임시 주소(Quick Tunnel, https://…trycloudflare.com — 다시 켜면 바뀐다).
 #   SHARE_TUNNEL=0 이면 서버만 띄운다 — 터널은 바깥(mallot-home 의 mallot-tunnel)이 맡을 때.
+#   MLG_BASE_PATH(예: /ledger)가 있으면 그 경로 아래로 빌드 · 서빙하고, MLG_HOME_AUTH_URL 이 있으면 로그인은 Mallot 홈이 맡는다
+#   (둘 다 systemd 유닛의 EnvironmentFile 이나 .env 로 들어온다).
 # 끄기: Ctrl+C (백엔드 · 터널을 같이 끈다). 기록: data/share.log, 지금 주소: data/share-url.txt
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -10,7 +12,12 @@ PORT="${PORT:-8200}"
 CONF="${TUNNEL_CONFIG:-$HOME/.cloudflared/mallot-ledger.yml}"
 mkdir -p "$ROOT/data"
 
-if ! grep -qE '^MLG_ADMIN_PASSWORD(_HASH)?=.+' "$ROOT/.env" 2>/dev/null && [ -z "${MLG_ADMIN_PASSWORD_HASH:-}${MLG_ADMIN_PASSWORD:-}" ]; then
+# .env 의 값 (셸 환경 변수가 없을 때) — 프론트 빌드와 백엔드가 같은 경로 접두사 · 홈 로그인 설정을 보게
+dotenv() { { grep -E "^$1=" "$ROOT/.env" 2>/dev/null || true; } | tail -1 | cut -d= -f2- | sed -e "s/^[\"']//" -e "s/[\"']\$//"; }
+export MLG_BASE_PATH="${MLG_BASE_PATH:-$(dotenv MLG_BASE_PATH)}"
+export MLG_HOME_AUTH_URL="${MLG_HOME_AUTH_URL:-$(dotenv MLG_HOME_AUTH_URL)}"
+
+if [ -z "$MLG_HOME_AUTH_URL" ] && ! grep -qE '^MLG_ADMIN_PASSWORD(_HASH)?=.+' "$ROOT/.env" 2>/dev/null && [ -z "${MLG_ADMIN_PASSWORD_HASH:-}${MLG_ADMIN_PASSWORD:-}" ]; then
   echo "[share] 관리자 비밀번호가 없어요 — 먼저: cd backend && uv run python -m app.auth.passwd" >&2
   exit 1
 fi
@@ -30,7 +37,7 @@ trap cleanup INT TERM EXIT
 (cd "$ROOT/backend" && MLG_PUBLIC=1 exec uv run uvicorn app.main:app --host 127.0.0.1 --port "$PORT") &
 pids+=($!)
 for _ in $(seq 1 60); do curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1 && break; sleep 1; done
-echo "[share] 서버 http://127.0.0.1:$PORT (로그인 필수)"
+echo "[share] 서버 http://127.0.0.1:$PORT${MLG_BASE_PATH:+ (경로 $MLG_BASE_PATH)} (로그인 필수${MLG_HOME_AUTH_URL:+ — Mallot 홈 로그인})"
 
 if [ "${SHARE_TUNNEL:-1}" = "0" ]; then
   echo "[share] 터널 없이 서버만 (SHARE_TUNNEL=0)"
