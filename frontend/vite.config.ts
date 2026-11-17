@@ -11,8 +11,13 @@ try {
   /* git 이 없으면 dev */
 }
 
+// 경로 접두사 — MLG_BASE_PATH(예: /ledger)가 있으면 그 아래에서 돈다 (한 도메인의 /ledger/). 없으면 루트.
+const basePath = (process.env.MLG_BASE_PATH ?? '').trim().replace(/^\/+|\/+$/g, '')
+const base = basePath ? `/${basePath}/` : '/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base,
   plugins: [react()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
@@ -21,7 +26,8 @@ export default defineConfig({
   server: {
     host: true,
     proxy: {
-      '/api': `http://localhost:${process.env.BACKEND_PORT ?? 8200}`,
+      // 접두사가 있으면 /ledger/api 를 보낸다 — 백엔드도 같은 MLG_BASE_PATH 로 떼어 받는다
+      [`${base}api`]: `http://localhost:${process.env.BACKEND_PORT ?? 8200}`,
     },
   },
 })

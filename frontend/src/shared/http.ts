@@ -1,3 +1,12 @@
+/**
+ * 앱이 도는 경로 접두사 — 빌드할 때 MLG_BASE_PATH(예: /ledger)로 정한 vite base. 끝은 언제나 '/', 없으면 '/'.
+ * 한 도메인의 /ledger/ 아래에서 돌 때 API · 내려받기 링크 · 공유 주소가 이 아래로 가야 한다.
+ */
+export const BASE = import.meta.env.BASE_URL
+
+/** 이 앱의 절대 경로('/api/...', '/share?k=…')에 접두사를 붙인다. 접두사가 없으면(루트) 그대로. */
+export const withBase = (path: string) => (path.startsWith('/') ? BASE.replace(/\/$/, '') + path : path)
+
 /** 로그인이 풀렸을 때(401) window 에 보내는 이벤트 — App 이 듣고 내 역할을 다시 읽어 로그인 화면으로 바꾼다 */
 export const UNAUTHORIZED_EVENT = 'mia:unauthorized'
 
@@ -16,7 +25,7 @@ export async function request<T>(method: string, url: string, body?: unknown): P
     init.body = JSON.stringify(body)
     init.headers = { 'Content-Type': 'application/json' }
   }
-  const res = await fetch(url, init)
+  const res = await fetch(withBase(url), init)
   if (!res.ok) {
     // 로그인 API 자체의 401(비밀번호 틀림)은 빼고 알린다
     if (res.status === 401 && !url.startsWith('/api/auth/')) window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))

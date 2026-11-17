@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { systemApi } from '../features/settings/api'
-import { otherApps, portalUrl } from '../shared/otherApp'
+import { otherApps, pathMode, portalUrl } from '../shared/otherApp'
 import { useLoad } from '../shared/useLoad'
 import AccessAlerts from './AccessAlerts'
 import BrandMark from './BrandMark'
@@ -38,6 +38,8 @@ const SECTIONS: NavSection[] = [
 const UTILITY: NavItem[] = [{ to: '/settings', label: 'Settings', icon: <SettingsIcon /> }]
 const OTHER_APPS = otherApps()
 const PORTAL = portalUrl()
+// 경로 모드(한 도메인의 /ledger/)면 Mallot 홈 로그인을 같이 쓴다, 하위 도메인 · 포트면 앱마다 따로
+const SWITCH_NOTE = pathMode() ? 'Mallot 홈 로그인을 같이 써요' : '로그인은 따로예요'
 
 function Wordmark() {
   return (
@@ -101,7 +103,7 @@ export default function Layout({ onLogout, viewer }: { onLogout?: () => void; vi
             </a>
           )}
           {OTHER_APPS.map((o) => (
-            <a key={o.key} className="nav-link small app-switch" href={o.url} title={`${o.label} — 로그인은 따로예요`}>
+            <a key={o.key} className="nav-link small app-switch" href={o.url} title={`${o.label} — ${SWITCH_NOTE}`}>
               <span className="nav-icon" aria-hidden="true">⇄</span>
               <span>{o.label}</span>
             </a>
