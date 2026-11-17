@@ -2,19 +2,35 @@
  * Settings > 공유 — 손님(읽기 전용) 공유 링크 켜기 · 끄기 · 새 키, 휴대폰으로 찍어 여는 QR.
  * 손님은 관리자 화면을 그대로 읽기만 한다 (키 · 공유 설정은 못 보고, 설정 · 기록 · 가져오기는 못 바꾼다).
  * 관리자는 같은 주소에서 비밀번호로 로그인하면 휴대폰에서도 모든 화면을 쓴다.
+ * 홈 모드(me.home)면 로그인 · 손님 공유는 Mallot 홈 → 보안에서 관리한다 — 여기서는 그 안내 한 줄만.
  */
 import QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
+import { BASE, withBase } from '../../shared/http'
 import { useLoad } from '../../shared/useLoad'
-import { authApi } from '../auth/api'
+import { authApi, type Me } from '../auth/api'
 
 export default function ShareSettings() {
   const { data: me } = useLoad(() => authApi.me(), [])
+  if (!me) return null
+  if (me.home) {
+    return (
+      <div className="card stack">
+        <h3>접근 권한</h3>
+        {/* 홈 경로라 이 앱의 접두사를 붙이지 않는다 */}
+        <p className="small">로그인 · 손님 공유는 Mallot 홈 → 보안에서 관리해요. <a href="/security">Mallot 홈 보안 →</a></p>
+      </div>
+    )
+  }
+  return <AppShareSettings me={me} />
+}
+
+function AppShareSettings({ me }: { me: Me }) {
   const { data: link, error, reload } = useLoad(() => authApi.share(), [])
   const [qr, setQr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
-  const url = link ? `${window.location.origin}${link.path}` : ''
-  const adminUrl = `${window.location.origin}/`
+  const url = link ? `${window.location.origin}${withBase(link.path)}` : ''
+  const adminUrl = `${window.location.origin}${BASE}`
 
   useEffect(() => {
     if (!link?.enabled) return
@@ -35,14 +51,12 @@ export default function ShareSettings() {
   return (
     <div className="card stack">
       <h3>접근 권한</h3>
-      {me && (
-        <p className="small">
-          {me.auth ? <span className="chip paid">로그인 켜짐</span> : <span className="chip missed">로그인 꺼짐</span>}{' '}
-          {me.auth
-            ? '관리자 화면은 비밀번호로 로그인해야 열려요. 휴대폰에서도 같은 주소로 들어와 로그인하면 모든 화면을 쓸 수 있어요.'
-            : '이 컴퓨터에서만 쓰는 모드예요. 외부(터널)에서 오는 요청은 막혀요 — 공개하려면 관리자 비밀번호를 먼저 정하세요 (docs/share.md).'}
-        </p>
-      )}
+      <p className="small">
+        {me.auth ? <span className="chip paid">로그인 켜짐</span> : <span className="chip missed">로그인 꺼짐</span>}{' '}
+        {me.auth
+          ? '관리자 화면은 비밀번호로 로그인해야 열려요. 휴대폰에서도 같은 주소로 들어와 로그인하면 모든 화면을 쓸 수 있어요.'
+          : '이 컴퓨터에서만 쓰는 모드예요. 외부(터널)에서 오는 요청은 막혀요 — 공개하려면 관리자 비밀번호를 먼저 정하세요 (docs/share.md).'}
+      </p>
 
       <h3>손님 공유 링크 <span className="muted small">모든 화면을 읽기만 — 키 · 공유 설정 제외</span></h3>
       {error && <p className="error">{error}</p>}

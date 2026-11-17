@@ -6,6 +6,7 @@ import { ledgerApi, type Account, type ImportReport, type MerchantRule, type Set
 import { recurringApi, type RecurringGroup, type RecurringKind } from '../recurring/api'
 import { systemApi } from './api'
 import IconPicker from '../../shared/ui/IconPicker'
+import { withBase } from '../../shared/http'
 import { useLoad } from '../../shared/useLoad'
 import { useReadOnly } from '../../shared/readOnly'
 
@@ -339,7 +340,7 @@ export function SystemSettings() {
             <div className="form-actions">
               <button onClick={reload}>새로고침</button>
               {!readOnly && (
-                <a className="button primary" href="/api/system/backup" download>
+                <a className="button primary" href={withBase('/api/system/backup')} download>
                   DB 백업 다운로드
                 </a>
               )}

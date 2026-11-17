@@ -14,6 +14,7 @@ from app import registry
 from app.auth import access_log
 from app.auth.guard import guard
 from app.core import envfile, metrics, trace
+from app.core.base_path import BasePathMiddleware
 from app.core.db import connect, init_db
 from app.llm import local
 from app.recurring.matching import relink_recurring
@@ -64,6 +65,10 @@ async def request_metrics(request: Request, call_next):
             route = request.scope.get("route")
             metrics.observe(request.method, getattr(route, "path", request.url.path), status,
                             (time.perf_counter() - started) * 1000)
+
+
+# 경로 접두사(MLG_BASE_PATH, 예: /ledger)를 뗀다 — 마지막에 더해 맨 바깥이라 guard · 라우터는 뗀 경로를 본다 (app/core/base_path)
+app.add_middleware(BasePathMiddleware)
 
 
 @app.get("/api/health")

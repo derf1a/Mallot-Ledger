@@ -8,6 +8,8 @@
 - 쿠키는 서명한 토큰(역할 · 만료). 관리자 토큰은 비밀번호에서, 손님 토큰은 공유 키에서 서명 키를 만든다
   → 비밀번호를 바꾸거나 공유 키를 새로 만들면 이전 쿠키가 모두 끊긴다.
 - 로그인은 5번 틀리면 15분 잠근다 (프로세스 메모리, 서버 전체).
+- 홈 모드(MLG_HOME_AUTH_URL): 로그인 · 손님 공유는 Mallot 홈이 맡는다. 앱은 홈에 쿠키(mallot_session)가 누구인지 묻기만 한다
+  (home_role). 위의 앱 자체 로그인 · 공유 링크는 쓰지 않는다.
 """
 
 import base64
@@ -19,6 +21,10 @@ import secrets
 import sqlite3
 import threading
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from collections import OrderedDict
 from pathlib import Path
 
 from app.core.db import connect, data_dir
@@ -33,8 +39,18 @@ MIN_PASSWORD = 10
 S_SHARE = "share"
 PROXY_HEADERS = ("cf-connecting-ip", "x-forwarded-for", "x-real-ip", "forwarded")
 
+HOME_ENV = "MLG_HOME_AUTH_URL"
+HOME_COOKIE = "mallot_session"
+HOME_APP = "ledger"
+HOME_TIMEOUT = 2.0
+HOME_CACHE_SEC = 10.0
+HOME_CACHE_MAX = 1000
+HOME_LOGIN_URL = "/login"
+HOME_LOGOUT_URL = "/logout"
+
 _lock = threading.Lock()
 _fails: dict = {"count": 0, "until": 0.0}
+_home_cache: OrderedDict[str, tuple[float, str | None]] = OrderedDict()
 
 
 # ---------- 설정 ----------
@@ -211,3 +227,63 @@ def login(password: str) -> bool:
 def reset_failures() -> None:
     with _lock:
         _fails.update(count=0, until=0.0)
+
+
+# ---------- Mallot 홈 통합 로그인 (홈 모드) ----------
+
+class HomeUnavailable(Exception):
+    """홈 로그인 서버가 답하지 않거나 오류 — 닫힌 쪽으로 실패한다 (guard 가 503)."""
+
+
+def home_auth_url() -> str:
+    return os.environ.get(HOME_ENV, "").strip().rstrip("/")
+
+
+def home_mode() -> bool:
+    return bool(home_auth_url())
+
+
+def _ask_home(session: str) -> str | None:
+    """GET {홈}/internal/auth/check?app=ledger — 대시보드 열쇠와 세션 값을 머리에 실어 보낸다. 표준 urllib, 2초."""
+    url = f"{home_auth_url()}/internal/auth/check?{urllib.parse.urlencode({'app': HOME_APP})}"
+    req = urllib.request.Request(url, headers={"X-Mallot-Feed": os.environ.get("MLG_FEED_TOKEN", ""),
+                                               "X-Mallot-Session": session})
+    try:
+        with urllib.request.urlopen(req, timeout=HOME_TIMEOUT) as res:  # noqa: S310 — 주소는 .env 로만 정한다
+            data = json.loads(res.read(65_536))
+    except (urllib.error.URLError, OSError, ValueError) as e:  # HTTPError(401 · 5xx) · 연결 실패 · 시간 초과 · JSON 아님
+        raise HomeUnavailable(str(e)) from None
+    role = data.get("role") if isinstance(data, dict) else None
+    return role if role in ("admin", "viewer") else None
+
+
+def home_role(session: str | None) -> str | None:
+    """홈이 말하는 이 세션의 역할: admin · viewer · None. 쿠키가 없으면 묻지 않는다.
+    sha256(세션) 을 키로 10초 캐시 (프로세스 메모리, 1000개). 홈 장애면 HomeUnavailable."""
+    if not session:
+        return None
+    key = hashlib.sha256(session.encode()).hexdigest()
+    now = time.monotonic()
+    with _lock:
+        hit = _home_cache.get(key)
+        if hit and hit[0] > now:
+            return hit[1]
+    role = _ask_home(session)
+    with _lock:
+        _home_cache[key] = (now + HOME_CACHE_SEC, role)
+        _home_cache.move_to_end(key)
+        while len(_home_cache) > HOME_CACHE_MAX:
+            _home_cache.popitem(last=False)
+    return role
+
+
+def home_request_role(headers, cookies) -> str | None:
+    """홈 모드에서 요청의 역할 — 터널 · 프록시를 거치지 않았으면(이 컴퓨터 안 127.0.0.1) admin, 아니면 홈에 묻는다."""
+    if not proxied(headers):
+        return "admin"
+    return home_role(cookies.get(HOME_COOKIE))
+
+
+def reset_home_cache() -> None:
+    with _lock:
+        _home_cache.clear()

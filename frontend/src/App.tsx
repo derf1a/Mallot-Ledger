@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Layout, { type ViewerActions } from './app/Layout'
-import { authApi, type Me } from './features/auth/api'
+import { authApi, goHomeLogin, homeLogout, type Me } from './features/auth/api'
 import LoginPage from './features/auth/LoginPage'
 import { setReadOnly, UNAUTHORIZED_EVENT } from './shared/http'
 import { ReadOnlyContext } from './shared/readOnly'
@@ -21,6 +21,7 @@ const page = (el: ReactNode) => <Suspense fallback={<p className="muted">불러�
  * 역할에 따라: 관리자 = 모든 화면, 손님(공유 링크) = 같은 화면을 읽기만(키 · 공유 설정 없음, 쓰기는 화면 · 서버 둘 다 막음),
  * 아무도 아님 = 공유 링크 입장 또는 관리자 로그인.
  * 로그인이 꺼진 모드(이 컴퓨터에서만 쓰기)에서는 서버가 언제나 관리자로 답한다.
+ * 홈 모드(me.home)면 로그인 · 로그아웃 · 손님 공유는 Mallot 홈에서 — 로그인 폼 대신 홈 로그인으로 보낸다.
  */
 export default function App() {
   const [me, setMe] = useState<Me | null>(null)
@@ -33,20 +34,26 @@ export default function App() {
     window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized)
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized)
   }, [load])
-  const logout = useCallback(() => authApi.logout().finally(load), [load])
+  const home = Boolean(me?.home)
+  const logout = useCallback(() => (me?.home ? homeLogout(me) : authApi.logout().finally(load)), [me, load])
   const readOnly = me?.role === 'viewer'
   useEffect(() => { setReadOnly(readOnly) }, [readOnly])
+  const signedOut = Boolean(me && me.role !== 'admin' && me.role !== 'viewer')
+  useEffect(() => { if (me && home && signedOut) goHomeLogin(me) }, [me, home, signedOut])
 
   if (error) return <p className="error page-error">{error}</p>
   if (!me) return <p className="muted page-error">불러오는 중…</p>
   if (me.role === 'admin' || me.role === 'viewer') {
-    const viewer = readOnly ? { onLogin: () => setMe({ ...me, role: null }), onLeave: logout } : undefined
+    const viewer = readOnly
+      ? { onLogin: () => (home ? goHomeLogin(me) : setMe({ ...me, role: null })), onLeave: logout }
+      : undefined
     return (
       <ReadOnlyContext.Provider value={readOnly}>
         <MainApp onLogout={me.auth && !readOnly ? logout : undefined} viewer={viewer} />
       </ReadOnlyContext.Provider>
     )
   }
+  if (home) return <p className="muted page-error">Mallot 홈 로그인으로 가는 중…</p>
   return <Gate me={me} onDone={load} />
 }
 
