@@ -1,7 +1,7 @@
 # Mallot Ledger — 개발 안내
 
 Mallot(개인 자산관리 앱)의 가계부만 떼어 낸 공개 저장소. 사용 설명은 [README.md](README.md), 구조는 [docs/architecture.md](docs/architecture.md).
-투자 쪽은 별도 저장소 Mallot Invest Agent (`~/mia`) — 같은 뼈대(core · llm · runs · auth)를 쓰지만 코드 · DB · 로그인은 따로다.
+투자 쪽은 별도 저장소 Mallot Invest Agent (`~/mallot-invest`) — 같은 뼈대(core · llm · runs · auth)를 쓰지만 코드 · DB · 로그인은 따로다.
 
 ## 규칙
 
