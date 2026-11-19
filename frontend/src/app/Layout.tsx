@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { systemApi } from '../features/settings/api'
-import { otherApps, pathMode, portalUrl } from '../shared/otherApp'
+import { pathMode } from '../shared/otherApp'
 import { useLoad } from '../shared/useLoad'
 import AccessAlerts from './AccessAlerts'
-import BrandMark from './BrandMark'
-import { BudgetIcon, HomeIcon, InsightsIcon, LedgerIcon, RecurringIcon, SalaryIcon, SettingsIcon } from './NavIcons'
+import AppMark from './AppMark'
+import AppSwitcher from './AppSwitcher'
+import { BudgetIcon, HomeIcon, InsightsIcon, LedgerIcon, LogoutIcon, RecurringIcon, SalaryIcon, SettingsIcon } from './NavIcons'
 
 interface NavItem {
   to: string
@@ -36,8 +37,6 @@ const SECTIONS: NavSection[] = [
   { title: 'Analyze', items: [{ to: '/ledger/insights', label: 'Insights', icon: <InsightsIcon /> }] },
 ]
 const UTILITY: NavItem[] = [{ to: '/settings', label: 'Settings', icon: <SettingsIcon /> }]
-const OTHER_APPS = otherApps()
-const PORTAL = portalUrl()
 // 경로 모드(한 도메인의 /ledger/)면 Mallot 홈 로그인을 같이 쓴다, 하위 도메인 · 포트면 앱마다 따로
 const SWITCH_NOTE = pathMode() ? 'Mallot 홈 로그인을 같이 써요' : '로그인은 따로예요'
 
@@ -74,7 +73,7 @@ export default function Layout({ onLogout, viewer }: { onLogout?: () => void; vi
         <button className="menu-button" aria-label="메뉴 열기" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
           ☰
         </button>
-        <BrandMark size={24} />
+        <AppMark app="ledger" size={24} />
         <span className="topbar-title">{current?.label ?? 'Mallot Ledger'}</span>
         {viewer && <span className="chip readonly-chip">읽기 전용</span>}
       </header>
@@ -83,7 +82,7 @@ export default function Layout({ onLogout, viewer }: { onLogout?: () => void; vi
 
       <nav className={`sidebar${menuOpen ? ' open' : ''}`}>
         <NavLink to="/" className="brand" onClick={() => setMenuOpen(false)}>
-          <BrandMark />
+          <AppMark app="ledger" />
           <Wordmark />
         </NavLink>
         <div className="nav-main">
@@ -96,19 +95,6 @@ export default function Layout({ onLogout, viewer }: { onLogout?: () => void; vi
         </div>
         <div className="nav-utility">
           {UTILITY.map((item) => link(item, 'small'))}
-          {PORTAL && (
-            <a className="nav-link small app-switch" href={PORTAL} title="Mallot 홈 — 통합 대시보드">
-              <span className="nav-icon" aria-hidden="true">⌂</span>
-              <span>Mallot 홈</span>
-            </a>
-          )}
-          {OTHER_APPS.map((o) => (
-            <a key={o.key} className="nav-link small app-switch" href={o.url} title={`${o.label} — ${SWITCH_NOTE}`}>
-              <span className="nav-icon" aria-hidden="true">⇄</span>
-              <span>{o.label}</span>
-            </a>
-          ))}
-          {onLogout && <button className="nav-link small nav-button" onClick={onLogout}>로그아웃</button>}
           {viewer && (
             <>
               <span className="nav-readonly small">읽기 전용 · 손님</span>
@@ -117,15 +103,17 @@ export default function Layout({ onLogout, viewer }: { onLogout?: () => void; vi
             </>
           )}
         </div>
+        <AppSwitcher self="ledger" note={SWITCH_NOTE} />
         <footer className="sidebar-footer">
-          <BrandMark size={18} />
-          <span className="footer-text">
-            <span className="footer-version">Mallot Ledger v{__APP_VERSION__}</span>
-            <span>
-              build {__GIT_SHA__}
-              {health && ` · db v${health.db_version}`}
-            </span>
+          <span className="footer-text" title={`Mallot Ledger v${__APP_VERSION__} · build ${__GIT_SHA__}${health ? ` · DB 스키마 v${health.db_version}` : ''}`}>
+            v{__APP_VERSION__} · {__GIT_SHA__}
+            {health && ` · db v${health.db_version}`}
           </span>
+          {onLogout && (
+            <button className="footer-logout" onClick={onLogout} title="로그아웃" aria-label="로그아웃">
+              <LogoutIcon />
+            </button>
+          )}
         </footer>
       </nav>
 

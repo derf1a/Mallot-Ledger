@@ -91,3 +91,11 @@ export const SalaryIcon = () => (
     <path d="M6 9.5v5M18 9.5v5" />
   </Svg>
 )
+
+export const LogoutIcon = () => (
+  <Svg>
+    <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" />
+    <path d="M10 16l-4-4 4-4" />
+    <path d="M6 12h10" />
+  </Svg>
+)
